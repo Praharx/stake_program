@@ -8,7 +8,6 @@ pub mod stake_program {
 
     pub fn stake(ctx: Context<Stake>, amount: u64) -> Result<()> {
         let user_state = &mut ctx.accounts.user_state;
-        // let staking_pool = &mut ctx.accounts.staking_pool;
 
         // Transfer SOL from user to staking pool using CpiContext
         anchor_lang::system_program::transfer(
@@ -61,6 +60,7 @@ pub mod stake_program {
         user_state.amount_staked = 0;
         Ok(())
     }
+
 }
 
 #[derive(Accounts)]
@@ -117,9 +117,10 @@ pub struct Unstake<'info> {
     pub system_program: Program<'info, System>,
 }
 
+
 #[account]
 pub struct UserState {
-    pub amount_staked: u64,
+    pub amount_staked: u64
 }
 
 #[error_code]
@@ -127,5 +128,5 @@ pub enum ErrorCode {
     #[msg("No staked amount found for this user.")]
     NoStakedAmount,
     #[msg("Not enough SOL staked!")]
-    NotEnoughSolStaked,
+    NotEnoughSolStaked
 }
