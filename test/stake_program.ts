@@ -61,3 +61,4 @@ describe("stake_program", () => {
     expect(poolFinalBalance - poolInitialBalance).to.equal(stakeAmount.toNumber());
   });
 });
+

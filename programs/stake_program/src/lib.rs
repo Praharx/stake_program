@@ -6,38 +6,28 @@ declare_id!("8oaQoLPjeT8cKxE1R8NZLtyopbWLgHq19uHVF4UHQZTF");
 pub mod stake_program {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        msg!("Greetings from: {:?}", ctx.program_id);
-        Ok(())
-    }
-
     pub fn stake(ctx: Context<Stake>, amount: u64) -> Result<()> {
         let user_state = &mut ctx.accounts.user_state;
-        let staking_pool = &mut ctx.accounts.staking_pool;
+        // let staking_pool = &mut ctx.accounts.staking_pool;
 
-        // Transfer SOL from user to staking pool
-        let ix = anchor_lang::solana_program::system_instruction::transfer(
-            &ctx.accounts.user.key(),
-            &staking_pool.key(),
+        // Transfer SOL from user to staking pool using CpiContext
+        anchor_lang::system_program::transfer(
+            CpiContext::new(
+                ctx.accounts.system_program.to_account_info(),
+                anchor_lang::system_program::Transfer {
+                    from: ctx.accounts.user.to_account_info(),
+                    to: ctx.accounts.staking_pool.to_account_info(),
+                },
+            ),
             amount,
-        );
-        anchor_lang::solana_program::program::invoke(
-            &ix,
-            &[
-                ctx.accounts.user.to_account_info(),
-                staking_pool.to_account_info(),
-            ],
         )?;
 
         // Update user state
         user_state.amount_staked += amount;
-
         Ok(())
     }
 }
 
-#[derive(Accounts)]
-pub struct Initialize {}
 
 #[derive(Accounts)]
 pub struct Stake<'info> {
